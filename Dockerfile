@@ -6,16 +6,27 @@ ENV HOME /root
 # Use baseimage-docker's init system.
 CMD ["/sbin/my_init"]
 
+
 #Install Oracle JDK 8
 RUN sudo add-apt-repository ppa:webupd8team/java && sudo apt-get update
 #This absurdity exists so that JDK is installed without prompting for license
 RUN echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections
 
+#tools
+RUN apt-get update
+RUN apt-get install -y postgresql-client git mysql-client vim zsh python python-pip curl tmux wget
 RUN sudo apt-get install -y --no-install-recommends oracle-java8-installer
 RUN sudo apt-get install oracle-java8-set-default
+RUN pip install Jinja2
+RUN pip install j2cli
 RUN sudo apt-get autoremove -y && apt-get clean
 
-ENV JRUBY_VERSION 1.7.19
+#install cacert cert
+RUN mkdir /usr/local/share/ca-certificates/cacert.org
+RUN wget -P /usr/local/share/ca-certificates/cacert.org http://www.cacert.org/certs/root.crt http://www.cacert.org/certs/class3.crt
+RUN update-ca-certificates
+
+ENV JRUBY_VERSION 1.7.20
 #Get JRuby
 RUN curl http://jruby.org.s3.amazonaws.com/downloads/$JRUBY_VERSION/jruby-bin-$JRUBY_VERSION.tar.gz | tar xz -C /opt
 
